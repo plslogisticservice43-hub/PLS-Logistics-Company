@@ -25,8 +25,12 @@
   nav a{color:var(--muted);text-decoration:none;font-weight:600;padding:8px;border-radius:8px}
   nav a:hover{background:rgba(11,118,239,0.06)}
   /* HERO */
-  .hero{display:flex;align-items:center;justify-content:center;min-height:320px;background-image:url('https://images.unsplash.com/photo-1508898578281-774ac4893a08?q=80&w=1920&auto=format&fit=crop');background-size:cover;background-position:center;color:#fff;text-align:center;padding:48px 18px}
-  .hero-inner{background:linear-gradient(0deg, rgba(0,0,0,0.45), rgba(0,0,0,0.12));padding:28px;border-radius:12px;max-width:960px}
+  .hero{display:flex;align-items:center;justify-content:center;min-height:320px;
+        background-image:linear-gradient(135deg, rgba(11,118,239,0.65), rgba(0,200,83,0.65), rgba(255,99,71,0.65)),
+                          url('https://images.unsplash.com/photo-1508898578281-774ac4893a08?q=80&w=1920&auto=format&fit=crop');
+        background-size:cover;background-position:center;
+        color:#fff;text-align:center;padding:48px 18px}
+  .hero-inner{padding:28px;border-radius:12px;max-width:960px}
   .hero h1{font-size:28px;margin-bottom:10px}
   .hero p{color:rgba(255,255,255,0.9);margin-bottom:18px}
   .btn{background:var(--accent);color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer}
@@ -90,7 +94,7 @@
   </header>
 
    <!-- HERO -->
-  <section class="hero" id="home" style="background-image:url('360_F_448938910_WRtijsyMlLN5zN8kkkfsY8CKoMoXlQwv.jpg');background-size:cover;background-position:center;">
+  <section class="hero" id="home">
     <div class="hero-inner">
       <h1>Fast • Transparent • Secure — Nationwide Logistics</h1>
       <p>Track your delivery in real time. Enter a tracking code below to view the consignment details and live progress for the driver.</p>
@@ -155,15 +159,6 @@
               </div>
             </div>
           </div>
-
-          <div style="margin-top:12px" class="card">
-            <div style="font-weight:700;margin-bottom:8px">Quick Controls</div>
-            <div class="muted" style="font-size:13px">Use this to cancel the delivery demo</div>
-            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-              <button class="btn reset" onclick="cancelJourney()" id="sidebar-cancel">Cancel</button>
-            </div>
-          </div>
-
         </aside>
 
         <!-- main details -->
@@ -205,11 +200,6 @@
                     <div class="muted" id="timeLeft">—</div>
                   </div>
                 </div>
-
-                <div class="controls" style="margin-top:12px">
-                  <button class="btn reset" id="btnCancel" onclick="cancelJourney()">Cancel</button>
-                </div>
-
               </div>
             </div>
 
@@ -250,11 +240,12 @@
 
 <script>
 const TRACKING_CODE = 'PLS-TRK-9583021746';
-const REAL_DURATION_MS = 2 * 60 * 60 * 1000; // 2 hours
+const REAL_DURATION_MS = 2 * 60 * 60 * 1000; // 2 hours real time
+
 let simulatedElapsed = 0;
 let delivered = false;
-let intervalId = null;
 
+// UI refs
 const alexSection = document.getElementById('alex-section');
 const placeholder = document.getElementById('placeholder-section');
 const statusText = document.getElementById('statusText');
@@ -281,54 +272,37 @@ function showAlex(){
   alexSection.style.display = 'block';
   trackingCodeDisplay.innerText = TRACKING_CODE;
   setTimeout(()=> document.getElementById('alex-section').scrollIntoView({behavior:'smooth', block:'center'}), 80);
-  if(!intervalId) startCountdown();
 }
 
-function scrollToAlex(){ showAlex(); }
-
-function cancelJourney(){
-  simulatedElapsed = 0;
-  delivered = false;
-  clearInterval(intervalId);
-  intervalId = null;
-  progressBar.style.width = '0%';
-  progressPct.innerText = '0%';
-  statusText.innerText = 'Cancelled';
-  etaText.innerText = '—';
-  timeLeftEl.innerText = '—';
-  eventsLog.innerHTML = '';
-  logEvent('Journey cancelled');
+function scrollToAlex(){
+  showAlex();
 }
 
-// countdown timer
-function startCountdown(){
-  const startTime = Date.now();
-  const endTime = startTime + REAL_DURATION_MS;
-  intervalId = setInterval(()=>{
-    if(delivered) return;
-    const now = Date.now();
-    const remaining = Math.max(endTime - now,0);
-    const progress = (REAL_DURATION_MS - remaining)/REAL_DURATION_MS;
-    progressBar.style.width = (progress*100).toFixed(1)+'%';
-    progressPct.innerText = Math.round(progress*100)+'%';
-    statusText.innerText = progress>=1 ? 'Delivered' : 'On Route';
-    const hours = Math.floor(remaining/1000/60/60);
-    const minutes = Math.floor((remaining/1000/60)%60);
-    const seconds = Math.floor((remaining/1000)%60);
-    timeLeftEl.innerText = `${hours}h ${minutes}m ${seconds}s`;
-    etaText.innerText = new Date(endTime).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    if(remaining<=0){
-      delivered = true;
-      timeLeftEl.innerText = '0h 0m 0s';
-      progressBar.style.width = '100%';
-      progressPct.innerText = '100%';
-      statusText.innerText = 'Delivered';
-      logEvent('Delivered');
-      clearInterval(intervalId);
-      intervalId = null;
-    }
-  },1000);
-}
+// auto-update progress simulation (real-time countdown)
+setInterval(()=>{
+  if (!alexSection || alexSection.style.display==='none' || delivered) return;
+  simulatedElapsed += 1000; // 1 second in real-time
+  if (simulatedElapsed > REAL_DURATION_MS){
+    simulatedElapsed = REAL_DURATION_MS;
+    delivered = true;
+    statusText.innerText = 'Delivered';
+    etaText.innerText = '0 min';
+    timeLeftEl.innerText = '0 min';
+    progressBar.style.width = '100%';
+    progressPct.innerText = '100%';
+    logEvent('Delivered');
+    return;
+  }
+  const progress = simulatedElapsed / REAL_DURATION_MS;
+  progressBar.style.width = (progress*100).toFixed(1)+'%';
+  progressPct.innerText = Math.round(progress*100)+'%';
+  statusText.innerText = 'On Route';
+  const remaining = REAL_DURATION_MS - simulatedElapsed;
+  const minLeft = Math.floor(remaining/1000/60);
+  const secLeft = Math.floor((remaining/1000) % 60);
+  timeLeftEl.innerText = `${minLeft}m ${secLeft}s`;
+  etaText.innerText = new Date(Date.now()+remaining).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+}, 1000);
 
 function logEvent(msg){
   const li = document.createElement('li');
