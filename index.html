@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PLS Logistics Services — Tracker (Alex)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent:#0b76ef;
+    --muted:#6b7280;
+    --bg:#f5f7fb;
+    --card:#ffffff;
+    --success:#16a34a;
+    --danger:#dc2626;
+  }
+  *{box-sizing:border-box}
+  body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:var(--bg);color:#0f172a;-webkit-font-smoothing:antialiased}
+  header{background:#fff;border-bottom:1px solid rgba(15,23,42,0.04);position:sticky;top:0;z-index:40}
+  .container{max-width:1100px;margin:0 auto;padding:18px}
+  .header-inner{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:50px;height:50px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#00c853);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
+  nav{display:flex;gap:12px;align-items:center}
+  nav a{color:var(--muted);text-decoration:none;font-weight:600;padding:8px;border-radius:8px}
+  nav a:hover{background:rgba(11,118,239,0.06)}
+  /* HERO */
+  .hero{display:flex;align-items:center;justify-content:center;min-height:320px;background-image:url('https://images.unsplash.com/photo-1508898578281-774ac4893a08?q=80&w=1920&auto=format&fit=crop');background-size:cover;background-position:center;color:#fff;text-align:center;padding:48px 18px}
+  .hero-inner{background:linear-gradient(0deg, rgba(0,0,0,0.45), rgba(0,0,0,0.12));padding:28px;border-radius:12px;max-width:960px}
+  .hero h1{font-size:28px;margin-bottom:10px}
+  .hero p{color:rgba(255,255,255,0.9);margin-bottom:18px}
+  .btn{background:var(--accent);color:#fff;border:none;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer}
+  .btn.secondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.18)}
+  /* Sections */
+  section{max-width:1100px;margin:28px auto;padding:0 18px}
+  h2.section-title{font-size:22px;color:#0b1220;margin-bottom:12px;text-align:center}
+  .about .card-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:12px}
+  .card{background:var(--card);padding:16px;border-radius:10px;box-shadow:0 6px 18px rgba(15,23,42,0.04);border:1px solid rgba(15,23,42,0.03)}
+  /* Tracker layout (no map) */
+  .tracker-wrap{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}
+  .tracker-sidebar{background:var(--card);padding:16px;border-radius:10px;border:1px solid rgba(15,23,42,0.03)}
+  .driver-list{display:flex;flex-direction:column;gap:10px}
+  .driver-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:10px;border:1px solid rgba(15,23,42,0.03);cursor:pointer;background:#fff}
+  .driver-avatar{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent),#00c853);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800}
+  .driver-main{flex:1}
+  .driver-name{font-weight:700}
+  .driver-state{font-size:13px;color:var(--muted)}
+  /* details card (main content) */
+  .details{background:var(--card);padding:18px;border-radius:10px;border:1px solid rgba(15,23,42,0.03)}
+  .consignment-header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .consignment-title{font-weight:800;font-size:18px}
+  .tracking-code{font-weight:800;color:var(--accent);font-size:16px}
+  .consignment-grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:12px}
+  .row{display:flex;gap:12px;align-items:center}
+  .muted{color:var(--muted);font-size:14px}
+  .info-block{background:#f8fafc;padding:12px;border-radius:8px;border:1px solid rgba(15,23,42,0.03)}
+  /* progress */
+  .progress-wrap{margin-top:12px}
+  .progress-bar{height:14px;background:#eef2ff;border-radius:999px;overflow:hidden;border:1px solid rgba(11,118,239,0.06)}
+  .progress-bar .bar{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#00c853);transition:width 300ms linear}
+  .status-line{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+  /* events log */
+  .events{margin-top:12px;max-height:160px;overflow:auto;padding-right:6px}
+  .events li{list-style:none;padding:8px 10px;border-bottom:1px dashed #eee;font-size:14px}
+  /* small screen */
+  @media(max-width:900px){
+    .tracker-wrap{grid-template-columns:1fr;align-items:stretch}
+    .driver-item{justify-content:flex-start}
+  }
+</style>
+</head>
+<body>
+  <header>
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="logo">PLS</div>
+        <div>
+          <div style="font-weight:800">PLS Logistics Services</div>
+          <div style="font-size:13px;color:var(--muted)">Reliable deliveries across the US</div>
+        </div>
+      </div>
+
+      <nav>
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#tracker">Tracker</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+   <!-- HERO -->
+  <section class="hero" id="home" style="background-image:url('360_F_448938910_WRtijsyMlLN5zN8kkkfsY8CKoMoXlQwv.jpg');background-size:cover;background-position:center;">
+    <div class="hero-inner">
+      <h1>Fast • Transparent • Secure — Nationwide Logistics</h1>
+      <p>Track your delivery in real time. Enter a tracking code below to view the consignment details and live progress for the driver.</p>
+      <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+        <button class="btn" onclick="document.getElementById('trackInput').scrollIntoView({behavior:'smooth'})">Track Shipment</button>
+        <button class="btn secondary" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Contact Sales</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <h2 class="section-title">About PLS Logistics Services</h2>
+    <div class="about container">
+      <div class="card-row" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center">
+        <div class="card" style="max-width:720px">
+          <p style="color:var(--muted)">PLS Logistics Services provides enterprise-grade freight and last-mile delivery solutions across the United States. Our platform gives you visibility on every consignment with live progress and ETA updates.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <h2 class="section-title">Services</h2>
+    <div class="container services-grid" style="margin-top:12px">
+      <div class="card"><strong>Last-Mile Delivery</strong><p class="muted" style="margin-top:8px">Fast, local delivery with proof of delivery options.</p></div>
+      <div class="card"><strong>Dedicated Fleet</strong><p class="muted" style="margin-top:8px">Trusted drivers and secure handling for every route.</p></div>
+      <div class="card"><strong>Real-Time Tracking</strong><p class="muted" style="margin-top:8px">Visibility across pickup, transit, and delivery.</p></div>
+    </div>
+  </section>
+
+  <!-- TRACKER (no map) -->
+  <section id="tracker" style="padding-top:6px">
+    <div class="container">
+      <h2 class="section-title">Tracker</h2>
+
+      <!-- tracking input -->
+      <div style="display:flex;gap:12px;justify-content:center;margin-bottom:18px;flex-wrap:wrap">
+        <input id="trackInput" type="text" placeholder="Enter tracking code (e.g. PLS-TRK-9583021746)" style="padding:10px;border-radius:8px;border:1px solid rgba(15,23,42,0.06);min-width:280px" />
+        <button class="btn" onclick="onTrack()">Track</button>
+        <button class="btn secondary" onclick="showAlex()">Show Driver (Alex)</button>
+      </div>
+
+      <div class="tracker-wrap">
+        <!-- sidebar -->
+        <aside class="tracker-sidebar">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div>
+              <div style="font-weight:800">Drivers</div>
+              <div class="muted" style="font-size:13px">Click a driver to view details</div>
+            </div>
+          </div>
+
+          <div class="driver-list">
+            <!-- Only Alex -->
+            <div class="driver-item" onclick="scrollToAlex()" role="button" aria-label="Alex driver">
+              <div class="driver-avatar">A</div>
+              <div class="driver-main">
+                <div class="driver-name">Alex</div>
+                <div class="driver-state">South Carolina — On Route</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:12px" class="card">
+            <div style="font-weight:700;margin-bottom:8px">Quick Controls</div>
+            <div class="muted" style="font-size:13px">Use this to cancel the delivery demo</div>
+            <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+              <button class="btn reset" onclick="cancelJourney()" id="sidebar-cancel">Cancel</button>
+            </div>
+          </div>
+
+        </aside>
+
+        <!-- main details -->
+        <div class="details" id="alex-section" aria-live="polite" style="display:none">
+          <div class="consignment-header">
+            <div>
+              <div class="consignment-title">Consignment Details</div>
+              <div class="muted" style="margin-top:6px">PLS Logistics Services — Live status</div>
+            </div>
+            <div style="text-align:right">
+              <div class="tracking-code" id="trackingCodeDisplay">PLS-TRK-9583021746</div>
+              <div class="muted" style="font-size:13px">Shipment #: 221673745</div>
+            </div>
+          </div>
+
+          <div class="consignment-grid" style="margin-top:16px">
+            <div style="display:flex;gap:16px;flex-wrap:wrap">
+              <div style="flex:1;min-width:220px">
+                <div class="muted">Receiver</div>
+                <div style="font-weight:700;margin-top:6px">John Alan Hartsock</div>
+                <div class="muted" style="margin-top:6px">Address</div>
+                <div style="margin-top:6px">7303 1/2 Dayton Springfield Road<br/>Enon, Ohio 45323</div>
+                <div class="muted" style="margin-top:6px">Phone</div>
+                <div style="margin-top:6px;font-weight:700">937 572-7636</div>
+              </div>
+
+              <div style="flex:1;min-width:220px">
+                <div class="muted">Current Status</div>
+                <div id="statusText" style="font-weight:800;margin-top:8px">Idle</div>
+
+                <div style="margin-top:12px" class="muted">ETA</div>
+                <div id="etaText" style="font-weight:700;margin-top:6px">—</div>
+
+                <div class="progress-wrap">
+                  <div class="muted" style="margin-bottom:8px">Progress</div>
+                  <div class="progress-bar"><div class="bar" id="progressBar" style="width:0%"></div></div>
+                  <div class="status-line">
+                    <div class="muted" id="progressPct">0%</div>
+                    <div class="muted" id="timeLeft">—</div>
+                  </div>
+                </div>
+
+                <div class="controls" style="margin-top:12px">
+                  <button class="btn reset" id="btnCancel" onclick="cancelJourney()">Cancel</button>
+                </div>
+
+              </div>
+            </div>
+
+            <div>
+              <div class="muted" style="margin-bottom:8px">Events</div>
+              <ul class="events" id="eventsLog" aria-live="polite"></ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- placeholder main when alex hidden -->
+        <div class="details" id="placeholder-section" style="display:block">
+          <div style="text-align:center;padding:36px">
+            <div style="font-size:20px;font-weight:800">No consignment selected</div>
+            <div class="muted" style="margin-top:6px">Enter a tracking code (PLS-TRK-9583021746) or click "Show Driver (Alex)"</div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <h2 class="section-title">Contact</h2>
+      <div class="card" style="max-width:900px;margin:0 auto;text-align:center">
+        <p class="muted">For sales and support, reach out to our team.</p>
+        <p style="margin-top:8px"><strong>Email:</strong> info@plslogistics.com &nbsp; • &nbsp; <strong>Phone:</strong> +1 (555) 123-4567</p>
+      </div>
+    </div>
+  </section>
+
+  <footer style="padding:18px 0;margin-top:20px;background:#fff;border-top:1px solid rgba(15,23,42,0.04)">
+    <div class="container" style="text-align:center;color:var(--muted)">© PLS Logistics Services — Copywriter 2025</div>
+  </footer>
+
+<script>
+const TRACKING_CODE = 'PLS-TRK-9583021746';
+const REAL_DURATION_MS = 2 * 60 * 60 * 1000; // 2 hours
+let simulatedElapsed = 0;
+let delivered = false;
+let intervalId = null;
+
+const alexSection = document.getElementById('alex-section');
+const placeholder = document.getElementById('placeholder-section');
+const statusText = document.getElementById('statusText');
+const etaText = document.getElementById('etaText');
+const progressBar = document.getElementById('progressBar');
+const progressPct = document.getElementById('progressPct');
+const timeLeftEl = document.getElementById('timeLeft');
+const eventsLog = document.getElementById('eventsLog');
+const trackingCodeDisplay = document.getElementById('trackingCodeDisplay');
+
+logEvent('Page loaded — ready');
+
+function onTrack(){
+  const input = (document.getElementById('trackInput').value || '').trim();
+  if (input.toUpperCase() === TRACKING_CODE.toUpperCase()){
+    showAlex();
+  } else {
+    alert('Tracking code not found. Use: ' + TRACKING_CODE);
+  }
+}
+
+function showAlex(){
+  placeholder.style.display = 'none';
+  alexSection.style.display = 'block';
+  trackingCodeDisplay.innerText = TRACKING_CODE;
+  setTimeout(()=> document.getElementById('alex-section').scrollIntoView({behavior:'smooth', block:'center'}), 80);
+  if(!intervalId) startCountdown();
+}
+
+function scrollToAlex(){ showAlex(); }
+
+function cancelJourney(){
+  simulatedElapsed = 0;
+  delivered = false;
+  clearInterval(intervalId);
+  intervalId = null;
+  progressBar.style.width = '0%';
+  progressPct.innerText = '0%';
+  statusText.innerText = 'Cancelled';
+  etaText.innerText = '—';
+  timeLeftEl.innerText = '—';
+  eventsLog.innerHTML = '';
+  logEvent('Journey cancelled');
+}
+
+// countdown timer
+function startCountdown(){
+  const startTime = Date.now();
+  const endTime = startTime + REAL_DURATION_MS;
+  intervalId = setInterval(()=>{
+    if(delivered) return;
+    const now = Date.now();
+    const remaining = Math.max(endTime - now,0);
+    const progress = (REAL_DURATION_MS - remaining)/REAL_DURATION_MS;
+    progressBar.style.width = (progress*100).toFixed(1)+'%';
+    progressPct.innerText = Math.round(progress*100)+'%';
+    statusText.innerText = progress>=1 ? 'Delivered' : 'On Route';
+    const hours = Math.floor(remaining/1000/60/60);
+    const minutes = Math.floor((remaining/1000/60)%60);
+    const seconds = Math.floor((remaining/1000)%60);
+    timeLeftEl.innerText = `${hours}h ${minutes}m ${seconds}s`;
+    etaText.innerText = new Date(endTime).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    if(remaining<=0){
+      delivered = true;
+      timeLeftEl.innerText = '0h 0m 0s';
+      progressBar.style.width = '100%';
+      progressPct.innerText = '100%';
+      statusText.innerText = 'Delivered';
+      logEvent('Delivered');
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  },1000);
+}
+
+function logEvent(msg){
+  const li = document.createElement('li');
+  li.textContent = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+' — '+msg;
+  eventsLog.prepend(li);
+}
+</script>
+</body>
+</html>
